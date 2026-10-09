@@ -1,6 +1,7 @@
-#Maven Fuzzy Toy Factory Business Analysis Project
+# Maven Fuzzy Toy Factory Business Analysis Project
 
-## The stakeholders of Maven Fuzzy Factory, a fictional online retail platform that sells teddy
+## Project Overview
+The stakeholders of Maven Fuzzy Factory, a fictional online retail platform that sells teddy
 bear toys, has approached with a business problem. They want to know how they can optimize or what can be improved with the market to purchase funnel in regards to website pageviews, sessions, etc. These will in turn lead to increased sales. AI was used to review the dataset and find problems in the data and possible improvements to help develop a business problem. 
 
 ## Business Problem: 
@@ -40,7 +41,8 @@ The data was prepared and cleaned in MySQL. Empty MySQL tables were created firs
 
 ## SQL Analysis 
 
-The Advanced SQL analysis continued in MySQL. The market-to-purchase funnel is defined as: (home -> products -> cart -> shipping -> billing -> billing-2). I create a query to count how many website users reached each stage of the funnel and congregated everything into one website market funnel table. I also join the cleaned versions of the pageviews, sessions, and orders tables and see which activity DID NOT result in a purchase. Since the people who initiated these website sessions and product views did not purchase anything, it is helpful to understand which products and sessions were the most popular amongst them as well. A new table is created with this information and many queries onward result from this centralized table. 
+The Advanced SQL analysis continued in MySQL. The market-to-purchase funnel is defined as: (home -> products -> cart -> shipping -> billing -> billing-2). I create a query to count 
+how many website users reached each stage of the funnel and congregated everything into one website market funnel table. I also join the cleaned versions of the pageviews, sessions, and orders tables and see which activity DID NOT result in a purchase. Since the people who initiated these website sessions and product views did not purchase anything, it is helpful to understand which products and sessions were the most popular amongst them as well. A new table is created with this information and many queries onward result from this centralized table. 
 
 ## Key Findings
 
@@ -69,7 +71,8 @@ presented in an accessible way? As stated previously, are they adequately priced
 
 4. Sell more of the original Mr. fuzzy. There were 29618 total views of the original Mr. fuzzy product URL page that contributed to $1934516.68 in revenue, that is about $65 dollars per view. In order to increase customer engagement, I would recommend increasing this product's views to at least 40000. This should increase the revenue garnered to $2600000 for a 34% increase in sales.
 
-5. In terms of order refunds, the original Mr. fuzzy is by far the most refunded with a total of $61837.63 in refunds. It would also be beneficial to the company if surveys were taken as to why that specific product was refunded so much, and what customers think should be done to improve the product. 
+5. In terms of order refunds, the original Mr. fuzzy is by far the most refunded with a total of $61837.63 in refunds. It would also be beneficial to the company if
+surveys were taken as to why that specific product was refunded so much, and what customers think should be done to improve the product. 
 
 6. The year 2014, with $1,583,913.77 in sales, was the best year for online sales. It also has the highest session and pageview amounts as well (233,422 and 597,556 respectively). If these amounts can be set as a benchmark or milestone view count, it can be helpful for the business to attain around the same amount of revenue.
 

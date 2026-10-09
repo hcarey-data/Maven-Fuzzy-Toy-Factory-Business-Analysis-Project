@@ -4,7 +4,7 @@
 The stakeholders of Maven Fuzzy Factory, a fictional online retail platform that sells teddy
 bear toys, has approached with a business problem. They want to know how they can optimize or what can be improved with the market to purchase funnel in regards to website pageviews, sessions, etc. These will in turn lead to increased sales. AI was used to review the dataset and find problems in the data and possible improvements to help develop a business problem. 
 
-## Business Problem: 
+## Business Problem
 
 Find the three largest sources of revenue loss across the market to purchase funnel. 
 Also, find how much revenue that loss amounts to and what it is as a percentage of potential revenue. 

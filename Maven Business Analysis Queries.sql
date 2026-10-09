@@ -7,7 +7,164 @@ greatest impact. */
 USE maven_db;
 
 /* Deeper Analysis and Answering the three business questions of the business problem */
-/* Find the three largest sources of revenue loss in the market-to-purchase funnel (home, products, cart, shipping, and billing) */
+/* Find the three largest sources of revenue loss in the market-to-purchase funnel (home -> products -> cart -> shipping -> billing -> billing-2) */
+
+-- Create market funnel table
+CREATE TABLE market_funnel AS
+WITH session_pageviews AS (
+SELECT
+ws.website_session_id AS session_id,
+ws.created_at AS session_created_at,
+wp.website_pageview_id AS pageview_id,
+wp.created_at AS pageview_created_at,
+wp.pageview_url AS pageview_url,
+ROW_NUMBER() OVER(PARTITION BY ws.website_session_id ORDER BY wp.created_at) AS r_n
+FROM website_sessions_cleaned ws
+JOIN website_pageviews_cleaned wp
+ON ws.website_session_id = wp.website_session_id
+), page_groups AS (
+	SELECT
+    session_id, 
+    COUNT(pageview_url) AS pageview_count
+    FROM session_pageviews
+    GROUP BY session_id
+), h_pages AS (
+	SELECT
+	s_p.session_id AS session_id,
+	pageview_url,
+    r_n
+	FROM session_pageviews s_p
+    WHERE pageview_url = '/home' 
+), hp_pages AS (
+	SELECT
+	h_p.session_id,
+	pageview_url,
+    r_n
+	FROM h_pages h_p
+    JOIN page_groups p_g
+    ON h_p.session_id = p_g.session_id
+    WHERE ((pageview_url = '/home' AND r_n = 1) OR
+    (pageview_url = '/products' AND r_n = 2)) AND 
+    p_g.pageview_count >= 2
+), hpc_pages AS (
+	SELECT
+	hp_p.session_id,
+	pageview_url,
+    r_n
+	FROM hp_pages hp_p
+    JOIN page_groups p_g
+    ON hp_p.session_id = p_g.session_id
+    WHERE ((pageview_url = '/home' AND r_n = 1) OR  
+    (pageview_url = '/products' AND r_n = 2) OR
+    (pageview_url = '/cart' AND r_n = 3)) AND
+    p_g.pageview_count >= 3
+), hpcs_pages AS (
+	SELECT
+	hpc_p.session_id,
+	pageview_url,
+    r_n
+	FROM hpc_pages hpc_p
+    JOIN page_groups p_g
+    ON hpc_p.session_id = p_g.session_id
+    WHERE ((pageview_url = '/home' AND r_n = 1) OR  
+    (pageview_url = '/products' AND r_n = 2) OR
+    (pageview_url = '/cart' AND r_n = 3) OR 
+    (pageview_url = '/shipping' AND r_n = 4)) AND 
+    p_g.pageview_count >= 4
+), hpcsb_pages AS (
+	SELECT
+	hpcs_p.session_id,
+	pageview_url,
+    r_n
+	FROM hpcs_pages hpcs_p
+    JOIN page_groups p_g
+    ON hpcs_p.session_id = p_g.session_id
+    WHERE ((pageview_url = '/home' AND r_n = 1) 
+    OR (pageview_url = '/products' AND r_n = 2) 
+    OR (pageview_url = '/cart' AND r_n = 3) 
+    OR (pageview_url = '/shipping' AND r_n = 4) 
+    OR (pageview_url = '/billing' AND r_n = 5))
+    AND p_g.pageview_count >= 5
+), hpcsbb_pages AS (
+	SELECT
+	hpcsb_p.session_id,
+	pageview_url,
+    r_n
+	FROM hpcsb_pages hpcsb_p
+    JOIN page_groups p_g
+    ON hpcsb_p.session_id = p_g.session_id
+    WHERE ((pageview_url = '/home' AND r_n = 1) 
+    OR  (pageview_url = '/products' AND r_n = 2) 
+    OR (pageview_url = '/cart' AND r_n = 3) 
+    OR (pageview_url = '/shipping' AND r_n = 4) 
+    OR (pageview_url = '/billing' AND r_n = 5) 
+    OR (pageview_url = '/billing-2' AND r_n = 6))
+    AND p_g.pageview_count >= 6
+)
+
+SELECT
+'Home View Reached Total', COUNT(*) AS market_funnel
+FROM h_pages
+UNION ALL
+SELECT 
+'Product View Reached Total', COUNT(*) 
+FROM hp_pages
+UNION ALL
+SELECT
+'Cart View Reached Total', COUNT(*) 
+FROM  hpc_pages
+UNION ALL
+SELECT
+'Shipping View Reached Total', COUNT(*) 
+FROM  hpcs_pages
+UNION ALL 
+SELECT
+'Billing View Reached Total', COUNT(*) 
+FROM hpcsb_pages
+UNION ALL
+SELECT 
+'Billing-2 View Reached Total', COUNT(*) AS billings_two_page_reached
+FROM hpcsbb_pages;
+
+-- Restructure and create new market funnel table
+CREATE TABLE website_market_funnel
+SELECT
+CASE 
+WHEN market_funnel = 137576 THEN 'Home View Reached Total' 
+WHEN market_funnel = 80230 THEN 'Product View Reached Total' 
+WHEN market_funnel = 64120 THEN 'Cart View Reached Total' 
+WHEN market_funnel = 28929 THEN 'Shipping View Reached Total' 
+WHEN market_funnel = 19600 THEN 'Billing View Reached Total' 
+WHEN market_funnel = 15759 THEN 'Billing-2 View Reached Total' 
+END AS pageview_progression,
+market_funnel
+FROM market_funnel;
+
+-- Calculate revenue lost based on average order value (AOV). 
+CREATE TABLE loss_metrics AS 
+WITH average_order_value AS (
+	SELECT 
+		SUM(price_usd * items_purchased) / COUNT(DISTINCT order_id) AS aov
+	FROM orders_cleaned
+), view_loss AS (
+	SELECT
+		pageview_progression,
+        market_funnel,
+        LEAD(market_funnel) OVER() AS next_total,
+        market_funnel - LEAD(market_funnel) OVER() AS total_diff,
+        ((market_funnel - LAG(market_funnel) OVER()) / LAG(market_funnel) OVER()) * 100 AS loss_percentage,
+        (market_funnel - LEAD(market_funnel) OVER()) * (SELECT aov FROM average_order_value) AS revenue_loss
+    FROM website_market_funnel
+)
+
+SELECT 
+*
+FROM view_loss;
+
+-- View loss metrics
+SELECT
+*
+FROM loss_metrics;
 
 -- Create table of customer sessions that DID NOT result in a purchase.
 CREATE TABLE online_activity_no_purchase AS (

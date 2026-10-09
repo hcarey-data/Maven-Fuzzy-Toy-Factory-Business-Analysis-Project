@@ -46,6 +46,10 @@ how many website users reached each stage of the funnel and congregated everythi
 
 ## Key Findings
 
+![Executive Summary](./Executive_Summary_Visualizations.png)
+
+![Executive Summary](./Market_Funnel_Analysis Visualizations.png)
+
 FINDING 1: With a potential revenue loss of about $4,661,812.03 (if the average order value is $81.29), the biggest source of revenue loss on the market funnel comes from potential customers only visiting the home page.     
 
 FINDING 2: The second biggest revenue loss, with about $2,860,771.93, comes from potential customers who viewed up to only the cart page.
